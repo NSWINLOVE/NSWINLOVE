@@ -56,8 +56,8 @@ require __DIR__ . '/layout-top.php';
   <?= csrf_input() ?>
   <div class="section-head"><h3 class="section-title"><span>📢</span><span>公告配置</span></h3><span class="section-sub">前台公告</span></div>
   <p><label><input type="checkbox" name="enabled" <?= !empty($notice['enabled']) ? 'checked' : '' ?>> 启用前台公告</label></p>
-  <p><label>公告标题</label><br><input style="width:100%;min-height:48px;padding:12px 14px;border-radius:14px;border:1px solid #cbd5e1;" type="text" name="title" value="<?= h($notice['title'] ?? '站点公告') ?>"></p>
-  <p><label>公告内容</label><br><textarea style="width:100%;min-height:140px;padding:12px 14px;border-radius:14px;border:1px solid #cbd5e1;" name="content"><?= h($notice['content'] ?? '') ?></textarea></p>
+  <p><label class="field-label">公告标题</label><input class="input-ui" type="text" name="title" value="<?= h($notice['title'] ?? '站点公告') ?>"></p>
+  <p><label class="field-label">公告内容</label><textarea class="textarea-ui" name="content"><?= h($notice['content'] ?? '') ?></textarea></p>
   <p><button class="btn primary" type="submit">保存公告</button></p>
 </form>
 </div>

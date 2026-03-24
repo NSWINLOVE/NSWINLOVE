@@ -102,15 +102,15 @@ require __DIR__ . '/layout-top.php';
   <?php if ($error): ?><div class="alert-error"><?= h($error) ?></div><?php endif; ?>
   <form method="post" enctype="multipart/form-data">
     <?= csrf_input() ?>
-    <p><label>站点标题</label><br><input style="width:100%;min-height:48px;padding:12px 14px;border-radius:14px;border:1px solid #cbd5e1;" type="text" name="site_title" value="<?= h($site['title'] ?? '') ?>"></p>
-    <p><label>站点描述</label><br><input style="width:100%;min-height:48px;padding:12px 14px;border-radius:14px;border:1px solid #cbd5e1;" type="text" name="site_description" value="<?= h($site['description'] ?? '') ?>"></p>
-    <p><label>后台入口目录</label><br><input style="width:100%;min-height:48px;padding:12px 14px;border-radius:14px;border:1px solid #cbd5e1;" type="text" name="admin_slug" value="<?= h($currentSlug) ?>"></p>
-    <p><label>SEO 关键词</label><br><input style="width:100%;min-height:48px;padding:12px 14px;border-radius:14px;border:1px solid #cbd5e1;" type="text" name="keywords" value="<?= h($site['keywords'] ?? '') ?>"></p>
+    <p><label class="field-label">站点标题</label><input class="input-ui" type="text" name="site_title" value="<?= h($site['title'] ?? '') ?>"></p>
+    <p><label class="field-label">站点描述</label><input class="input-ui" type="text" name="site_description" value="<?= h($site['description'] ?? '') ?>"></p>
+    <p><label class="field-label">后台入口目录</label><input class="input-ui" type="text" name="admin_slug" value="<?= h($currentSlug) ?>"></p>
+    <p><label class="field-label">SEO 关键词</label><input class="input-ui" type="text" name="keywords" value="<?= h($site['keywords'] ?? '') ?>"></p>
 
     <div class="split-grid">
       <div>
-        <p><label>Logo 图片地址</label><br><input style="width:100%;min-height:48px;padding:12px 14px;border-radius:14px;border:1px solid #cbd5e1;" type="text" name="logo" value="<?= h($site['logo'] ?? '') ?>"></p>
-        <p><label>上传 Logo</label><br><input type="file" name="logo_file" accept=".jpg,.jpeg,.png,.gif,.webp,.ico"></p>
+        <p><label class="field-label">Logo 图片地址</label><input class="input-ui" type="text" name="logo" value="<?= h($site['logo'] ?? '') ?>"></p>
+        <p><label class="field-label">上传 Logo</label><input class="file-ui" type="file" name="logo_file" accept=".jpg,.jpeg,.png,.gif,.webp,.ico"></p>
       </div>
       <div style="padding:12px;border-radius:16px;background:#f8fbff;border:1px solid #e5efff;text-align:center;">
         <div style="font-size:12px;color:#64748b;margin-bottom:8px;">当前 Logo</div>

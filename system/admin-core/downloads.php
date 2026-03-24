@@ -77,15 +77,15 @@ require __DIR__ . '/layout-top.php';
 <?php foreach (['android' => 'Android', 'ios' => 'iOS', 'windows' => 'Windows', 'mac' => 'macOS'] as $key => $label): ?>
   <div class="section-head"><h3 class="section-title"><span>🤖</span><span><?= h($label) ?></span></h3><span class="section-sub">平台配置</span></div>
   <div class="field-grid-3">
-    <p><label>主下载链接</label><br><input style="width:100%;min-height:48px;padding:12px 14px;border-radius:14px;border:1px solid #cbd5e1;" type="text" name="<?= h($key) ?>_url" value="<?= h($downloads[$key]['url'] ?? '#') ?>"></p>
-    <p><label>版本号</label><br><input style="width:100%;min-height:48px;padding:12px 14px;border-radius:14px;border:1px solid #cbd5e1;" type="text" name="<?= h($key) ?>_version" value="<?= h($downloads[$key]['version'] ?? 'v1.0.0') ?>"></p>
-    <p><label>更新时间</label><br><input style="width:100%;min-height:48px;padding:12px 14px;border-radius:14px;border:1px solid #cbd5e1;" type="text" name="<?= h($key) ?>_updated_at" value="<?= h($downloads[$key]['updated_at'] ?? date('Y-m-d')) ?>"></p>
+    <p><label class="field-label">主下载链接</label><input class="input-ui" type="text" name="<?= h($key) ?>_url" value="<?= h($downloads[$key]['url'] ?? '#') ?>"></p>
+    <p><label class="field-label">版本号</label><input class="input-ui" type="text" name="<?= h($key) ?>_version" value="<?= h($downloads[$key]['version'] ?? 'v1.0.0') ?>"></p>
+    <p><label class="field-label">更新时间</label><input class="input-ui" type="text" name="<?= h($key) ?>_updated_at" value="<?= h($downloads[$key]['updated_at'] ?? date('Y-m-d')) ?>"></p>
   </div>
-  <p><label>说明</label><br><input style="width:100%;min-height:48px;padding:12px 14px;border-radius:14px;border:1px solid #cbd5e1;" type="text" name="<?= h($key) ?>_notes" value="<?= h($downloads[$key]['notes'] ?? '') ?>"></p>
+  <p><label class="field-label">说明</label><input class="input-ui" type="text" name="<?= h($key) ?>_notes" value="<?= h($downloads[$key]['notes'] ?? '') ?>"></p>
 <?php endforeach; ?>
 <h3>更新说明</h3>
-<p><label>标题</label><br><input style="width:100%;min-height:48px;padding:12px 14px;border-radius:14px;border:1px solid #cbd5e1;" type="text" name="release_title" value="<?= h($release['title'] ?? '最新版本更新') ?>"></p>
-<p><label>内容</label><br><textarea style="width:100%;min-height:140px;padding:12px 14px;border-radius:14px;border:1px solid #cbd5e1;" name="release_content"><?= h($release['content'] ?? '') ?></textarea></p>
+<p><label class="field-label">标题</label><input class="input-ui" type="text" name="release_title" value="<?= h($release['title'] ?? '最新版本更新') ?>"></p>
+<p><label class="field-label">内容</label><textarea class="textarea-ui" name="release_content"><?= h($release['content'] ?? '') ?></textarea></p>
 <p><button class="btn primary" type="submit">保存下载配置</button></p>
 </form>
 </div>

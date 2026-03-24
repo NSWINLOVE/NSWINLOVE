@@ -63,9 +63,9 @@ require __DIR__ . '/layout-top.php';
 <form method="post">
   <?= csrf_input() ?>
   <div class="section-head"><h3 class="section-title"><span>🔐</span><span>密码配置</span></h3><span class="section-sub">账户安全</span></div>
-  <p><label>旧密码</label><br><input style="width:100%;min-height:48px;padding:12px 14px;border-radius:14px;border:1px solid #cbd5e1;" type="password" name="old_password"></p>
-  <p><label>新密码</label><br><input style="width:100%;min-height:48px;padding:12px 14px;border-radius:14px;border:1px solid #cbd5e1;" type="password" name="new_password"></p>
-  <p><label>确认新密码</label><br><input style="width:100%;min-height:48px;padding:12px 14px;border-radius:14px;border:1px solid #cbd5e1;" type="password" name="confirm_password"></p>
+  <p><label class="field-label">旧密码</label><input class="input-ui" type="password" name="old_password"></p>
+  <p><label class="field-label">新密码</label><input class="input-ui" type="password" name="new_password"></p>
+  <p><label class="field-label">确认新密码</label><input class="input-ui" type="password" name="confirm_password"></p>
   <p><button class="btn primary" type="submit">更新密码</button></p>
 </form>
 </div>

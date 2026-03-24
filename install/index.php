@@ -43,6 +43,7 @@ function deployAdminEntry(string $baseDir, string $slug): void {
         'content.php' => "<?php require __DIR__ . '/../system/admin-core/content.php';\n",
         'notice.php' => "<?php require __DIR__ . '/../system/admin-core/notice.php';\n",
         'password.php' => "<?php require __DIR__ . '/../system/admin-core/password.php';\n",
+        'about.php' => "<?php require __DIR__ . '/../system/admin-core/about.php';\n",
     ];
     foreach ($map as $file => $content) {
         if (file_put_contents($targetDir . '/' . $file, $content) === false) {

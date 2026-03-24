@@ -10,7 +10,7 @@ $installed = !empty($config['installed']);
 
 function h(?string $value): string { return htmlspecialchars((string)$value, ENT_QUOTES, 'UTF-8'); }
 function dval(array $downloads, string $platform, string $key, string $default = ''): string { return (string)($downloads[$platform][$key] ?? $default); }
-function platformIcon(string $platform): string { return match ($platform) { 'android' => '🤖', 'ios' => '', 'windows' => '⊞', 'mac' => '💻', default => '⬇', }; }
+function platformIcon(string $platform): string { return match ($platform) { 'android' => '🤖', 'ios' => '🍎', 'windows' => '🪟', 'mac' => '💻', default => '⬇', }; }
 function lines(string $text): array { return array_filter(array_map('trim', preg_split('/\r\n|\r|\n/', $text))); }
 function faqPairs(string $text): array { $rows = lines($text); $pairs = []; foreach ($rows as $row) { $parts = explode('=>', $row, 2); $pairs[] = ['q' => trim($parts[0] ?? ''), 'a' => trim($parts[1] ?? '')]; } return $pairs; }
 $title = $site['title'] ?? 'POP 官方下载';

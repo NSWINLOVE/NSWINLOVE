@@ -88,13 +88,37 @@ require __DIR__ . '/layout-top.php';
 <div class="panel">
   <?php if ($message): ?><div class="alert-success"><?= h($message) ?></div><?php endif; ?>
   <div class="stats-grid stats-grid-4">
-    <div class="soft-card"><strong>总下载量</strong><div style="margin-top:8px;font-size:28px;font-weight:900;"><?= h((string)$totalHits) ?></div></div>
-    <div class="soft-card"><strong>Android</strong><div style="margin-top:8px;font-size:28px;font-weight:900;"><?= h((string)($downloads['android']['hits'] ?? 0)) ?></div></div>
-    <div class="soft-card"><strong>iOS</strong><div style="margin-top:8px;font-size:28px;font-weight:900;"><?= h((string)($downloads['ios']['hits'] ?? 0)) ?></div></div>
-    <div class="soft-card"><strong>Windows + macOS</strong><div style="margin-top:8px;font-size:28px;font-weight:900;"><?= h((string)((int)($downloads['windows']['hits'] ?? 0) + (int)($downloads['mac']['hits'] ?? 0))) ?></div></div>
+    <div class="soft-card">
+      <div class="metric-head">
+        <strong class="metric-label"><span>📦</span><span>总下载量</span></strong>
+        <span class="metric-badge blue">总览</span>
+      </div>
+      <div style="margin-top:8px;font-size:28px;font-weight:900;"><?= h((string)$totalHits) ?></div>
+    </div>
+    <div class="soft-card">
+      <div class="metric-head">
+        <strong class="metric-label"><span>🤖</span><span>Android</span></strong>
+        <span class="metric-badge green">Android</span>
+      </div>
+      <div style="margin-top:8px;font-size:28px;font-weight:900;"><?= h((string)($downloads['android']['hits'] ?? 0)) ?></div>
+    </div>
+    <div class="soft-card">
+      <div class="metric-head">
+        <strong class="metric-label"><span>🍎</span><span>iOS</span></strong>
+        <span class="metric-badge gray">iOS</span>
+      </div>
+      <div style="margin-top:8px;font-size:28px;font-weight:900;"><?= h((string)($downloads['ios']['hits'] ?? 0)) ?></div>
+    </div>
+    <div class="soft-card">
+      <div class="metric-head">
+        <strong class="metric-label"><span>🖥️</span><span>桌面端</span></strong>
+        <span class="metric-badge blue">桌面端</span>
+      </div>
+      <div style="margin-top:8px;font-size:28px;font-weight:900;"><?= h((string)((int)($downloads['windows']['hits'] ?? 0) + (int)($downloads['mac']['hits'] ?? 0))) ?></div>
+    </div>
   </div>
 
-  <h3 style="margin:0 0 12px;">最近 7 天趋势</h3>
+  <div class="section-head"><h3 class="section-title"><span>📈</span><span>最近 7 天趋势</span></h3><span class="section-sub">近 7 天</span></div>
   <?php if (!$recentDays): ?>
     <div class="empty-state" style="margin-bottom:18px;">还没有按日期记录的下载数据。</div>
   <?php else: ?>
@@ -111,6 +135,7 @@ require __DIR__ . '/layout-top.php';
     </div>
   <?php endif; ?>
 
+  <div class="section-head"><h3 class="section-title"><span>🧾</span><span>平台统计明细</span></h3><span class="section-sub">明细</span></div>
   <div class="table-wrap">
     <table class="table-ui">
       <thead>
@@ -136,7 +161,7 @@ require __DIR__ . '/layout-top.php';
     </table>
   </div>
 
-  <h3 style="margin:0 0 12px;">最近 7 天下载记录</h3>
+  <div class="section-head"><h3 class="section-title"><span>🗓️</span><span>最近 7 天下载记录</span></h3><span class="section-sub">记录</span></div>
   <?php if (!$recentDays): ?>
     <div class="empty-state">还没有按日期记录的下载数据。</div>
   <?php else: ?>

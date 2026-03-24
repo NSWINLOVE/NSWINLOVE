@@ -62,6 +62,7 @@ require __DIR__ . '/layout-top.php';
 <?php if ($error): ?><div class="alert-error"><?= h($error) ?></div><?php endif; ?>
 <form method="post">
   <?= csrf_input() ?>
+  <div class="section-head"><h3 class="section-title"><span>🔐</span><span>密码配置</span></h3><span class="section-sub">账户安全</span></div>
   <p><label>旧密码</label><br><input style="width:100%;min-height:48px;padding:12px 14px;border-radius:14px;border:1px solid #cbd5e1;" type="password" name="old_password"></p>
   <p><label>新密码</label><br><input style="width:100%;min-height:48px;padding:12px 14px;border-radius:14px;border:1px solid #cbd5e1;" type="password" name="new_password"></p>
   <p><label>确认新密码</label><br><input style="width:100%;min-height:48px;padding:12px 14px;border-radius:14px;border:1px solid #cbd5e1;" type="password" name="confirm_password"></p>

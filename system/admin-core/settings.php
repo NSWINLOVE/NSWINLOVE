@@ -118,9 +118,8 @@ require __DIR__ . '/layout-top.php';
       </div>
     </div>
 
+    <div class="section-head"><h3 class="section-title"><span>🪪</span><span>Favicon 设置</span></h3><span class="section-sub">图标</span></div>
     <div class="split-grid">
-      <div>
-        <p><label>Favicon 图片地址</label><br><input style="width:100%;min-height:48px;padding:12px 14px;border-radius:14px;border:1px solid #cbd5e1;" type="text" name="favicon" value="<?= h($site['favicon'] ?? '') ?>"></p>
         <p><label>上传 Favicon</label><br><input type="file" name="favicon_file" accept=".jpg,.jpeg,.png,.gif,.webp,.ico"></p>
       </div>
       <div style="padding:12px;border-radius:16px;background:#f8fbff;border:1px solid #e5efff;text-align:center;">

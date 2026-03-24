@@ -65,6 +65,7 @@ require __DIR__ . '/layout-top.php';
 <?php if ($error): ?><div class="alert-error"><?= h($error) ?></div><?php endif; ?>
 <form method="post">
   <?= csrf_input() ?>
+  <div class="section-head"><h3 class="section-title"><span>📚</span><span>内容配置</span></h3><span class="section-sub">前台内容</span></div>
   <div class="field-grid-2">
     <p><label>系统要求标题</label><br><input style="width:100%;min-height:48px;padding:12px 14px;border-radius:14px;border:1px solid #cbd5e1;" type="text" name="requirements_title" value="<?= h($content['requirements_title'] ?? '系统要求') ?>"></p>
     <p><label>安装教程标题</label><br><input style="width:100%;min-height:48px;padding:12px 14px;border-radius:14px;border:1px solid #cbd5e1;" type="text" name="guide_title" value="<?= h($content['guide_title'] ?? '安装教程') ?>"></p>

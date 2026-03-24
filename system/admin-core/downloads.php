@@ -75,7 +75,7 @@ require __DIR__ . '/layout-top.php';
 <form method="post">
 <?= csrf_input() ?>
 <?php foreach (['android' => 'Android', 'ios' => 'iOS', 'windows' => 'Windows', 'mac' => 'macOS'] as $key => $label): ?>
-  <h3><?= h($label) ?></h3>
+  <div class="section-head"><h3 class="section-title"><span>🤖</span><span><?= h($label) ?></span></h3><span class="section-sub">平台配置</span></div>
   <div class="field-grid-3">
     <p><label>主下载链接</label><br><input style="width:100%;min-height:48px;padding:12px 14px;border-radius:14px;border:1px solid #cbd5e1;" type="text" name="<?= h($key) ?>_url" value="<?= h($downloads[$key]['url'] ?? '#') ?>"></p>
     <p><label>版本号</label><br><input style="width:100%;min-height:48px;padding:12px 14px;border-radius:14px;border:1px solid #cbd5e1;" type="text" name="<?= h($key) ?>_version" value="<?= h($downloads[$key]['version'] ?? 'v1.0.0') ?>"></p>

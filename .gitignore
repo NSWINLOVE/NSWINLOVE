@@ -1,0 +1,30 @@
+# Runtime / cache
+*.log
+*.tmp
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# PHP / server runtime
+*.pid
+*.sock
+
+# Local editor / system
+.vscode/
+.idea/
+
+# ACME challenge files are runtime-generated
+.well-known/acme-challenge/*
+
+# Trash and temporary recovery files
+.trash/*
+
+# Storage runtime data
+storage/*.log
+storage/*.tmp
+storage/*.cache
+storage/sessions/
+
+# Upload temp files
+uploads/tmp/

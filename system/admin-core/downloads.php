@@ -58,6 +58,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 'version' => trim($_POST[$section . '_version'] ?? 'v1.0.0'),
                 'notes' => trim($_POST[$section . '_notes'] ?? ''),
                 'updated_at' => trim($_POST[$section . '_updated_at'] ?? date('Y-m-d')),
+                'target_range' => trim($_POST[$section . '_target_range'] ?? ''),
+                'target_user' => trim($_POST[$section . '_target_user'] ?? ''),
+                'package_size' => trim($_POST[$section . '_package_size'] ?? ''),
+                'checksum' => trim($_POST[$section . '_checksum'] ?? ''),
                 'hits' => (int)($currentItem['hits'] ?? 0),
             ];
             $saved = save_install_config($configFile, function (array $current) use ($section, $newItem) {
@@ -80,7 +84,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 require __DIR__ . '/layout-top.php';
 ?>
-<div class="topbar"><div class="topbar-main"><h1>下载管理</h1><p>集中维护下载配置。</p></div></div>
+<div class="topbar"><div class="topbar-main"><h1>下载中心</h1><p>对应首页锚点 #downloads 和 #release，集中维护平台包与版本发布说明。</p></div></div>
 <div class="panel">
 <?php if ($message): ?><div class="alert-success"><?= h($message) ?></div><?php endif; ?>
 <?php if ($error): ?><div class="alert-error"><?= h($error) ?></div><?php endif; ?>
@@ -96,6 +100,13 @@ require __DIR__ . '/layout-top.php';
   .download-editor .input-ui{margin-bottom:14px}
   .download-editor .textarea-ui{min-height:100px;border-radius:12px;background:#fff;border:1px solid rgba(15,23,42,.10);color:#0f172a;line-height:1.75;box-shadow:none;padding:16px}
   .download-editor .textarea-ui:focus{border-color:#1d4ed8;box-shadow:0 0 0 3px rgba(59,130,246,.14)}
+  .editor-note{margin-bottom:14px;padding:12px 14px;border-radius:12px;background:#eff6ff;border:1px solid rgba(59,130,246,.14);color:#1e3a8a;font-size:13px;line-height:1.7}
+  .preview-mini{margin-top:14px;padding:14px;border-radius:14px;background:#fff;border:1px solid rgba(15,23,42,.06)}
+  .preview-mini-title{font-size:13px;font-weight:800;margin-bottom:10px;color:#0f172a}
+  .preview-mini-grid{display:grid;gap:8px}
+  .preview-mini-item{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 12px;border-radius:12px;background:#f8fafc;border:1px solid rgba(15,23,42,.05);font-size:12px}
+  .preview-mini-item span:first-child{color:#64748b;font-weight:700}
+  .preview-mini-item span:last-child{font-weight:800;color:#0f172a}
 </style>
 
 <div class="download-tabs" id="downloadTabs">
@@ -112,6 +123,7 @@ require __DIR__ . '/layout-top.php';
       <?= csrf_input() ?>
       <input type="hidden" name="section" value="<?= h($key) ?>">
       <div class="download-editor" style="margin-bottom:18px;">
+        <div class="editor-note">对应首页 <strong>#downloads</strong> 平台卡片。这里填写的版本、状态相关信息会直接影响首页下载卡展示。</div>
         <label class="field-label"><?= h($label) ?> 下载链接</label>
         <input class="input-ui" type="text" name="<?= h($key) ?>_url" value="<?= h($downloads[$key]['url'] ?? '#') ?>">
 
@@ -126,8 +138,42 @@ require __DIR__ . '/layout-top.php';
           </div>
         </div>
 
-        <label class="field-label">说明</label>
-        <textarea class="textarea-ui" name="<?= h($key) ?>_notes" style="min-height:240px;"><?= h($downloads[$key]['notes'] ?? '') ?></textarea>
+        <div class="field-grid-2">
+          <div>
+            <label class="field-label">适用系统</label>
+            <input class="input-ui" type="text" name="<?= h($key) ?>_target_range" value="<?= h($downloads[$key]['target_range'] ?? '') ?>" placeholder="如：Windows 10 / 11">
+          </div>
+          <div>
+            <label class="field-label">推荐对象</label>
+            <input class="input-ui" type="text" name="<?= h($key) ?>_target_user" value="<?= h($downloads[$key]['target_user'] ?? '') ?>" placeholder="如：桌面办公环境">
+          </div>
+        </div>
+
+        <div class="field-grid-2">
+          <div>
+            <label class="field-label">安装包大小</label>
+            <input class="input-ui" type="text" name="<?= h($key) ?>_package_size" value="<?= h($downloads[$key]['package_size'] ?? '') ?>" placeholder="如：128 MB">
+          </div>
+          <div>
+            <label class="field-label">校验信息</label>
+            <input class="input-ui" type="text" name="<?= h($key) ?>_checksum" value="<?= h($downloads[$key]['checksum'] ?? '') ?>" placeholder="如：SHA256 / MD5">
+          </div>
+        </div>
+
+        <label class="field-label">版本说明</label>
+        <textarea class="textarea-ui" name="<?= h($key) ?>_notes" style="min-height:200px;"><?= h($downloads[$key]['notes'] ?? '') ?></textarea>
+        <div class="field-help">建议填写该平台当前版本的主要说明、适用提醒或发布备注。</div>
+
+        <div class="preview-mini">
+          <div class="preview-mini-title">首页卡片预览字段</div>
+          <div class="preview-mini-grid">
+            <div class="preview-mini-item"><span>前台状态</span><span><?= (!empty($downloads[$key]['url'] ?? '') && ($downloads[$key]['url'] ?? '') !== '#') ? '已发布' : '待发布' ?></span></div>
+            <div class="preview-mini-item"><span>显示版本</span><span><?= h($downloads[$key]['version'] ?? 'v1.0.0') ?></span></div>
+            <div class="preview-mini-item"><span>适用系统</span><span><?= h($downloads[$key]['target_range'] ?? '待补充') ?></span></div>
+            <div class="preview-mini-item"><span>推荐对象</span><span><?= h($downloads[$key]['target_user'] ?? '待补充') ?></span></div>
+          </div>
+        </div>
+
         <div style="display:flex;justify-content:flex-end;margin-top:14px;"><button class="btn primary" type="submit">保存 <?= h($label) ?></button></div>
       </div>
     </form>
@@ -139,9 +185,10 @@ require __DIR__ . '/layout-top.php';
     <?= csrf_input() ?>
     <input type="hidden" name="section" value="release">
     <div class="download-editor" style="margin-bottom:18px;">
+      <div class="editor-note">对应首页 <strong>#release</strong> 区块。建议按每行一条填写版本特性、修复项、发布时间或发版提示。</div>
       <label class="field-label">更新说明标题</label>
       <input class="input-ui" type="text" name="release_title" value="<?= h($release['title'] ?? '最新版本更新') ?>">
-      <label class="field-label">更新说明内容（支持直接编写代码或富文本内容）</label>
+      <label class="field-label">更新说明内容（建议每行一条）</label>
       <textarea class="textarea-ui" name="release_content" style="min-height:320px;font-family:SFMono-Regular,Consolas,Monaco,monospace;"><?= h($release['content'] ?? '') ?></textarea>
       <div style="display:flex;justify-content:flex-end;margin-top:14px;"><button class="btn primary" type="submit">保存更新说明</button></div>
     </div>

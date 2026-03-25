@@ -192,7 +192,7 @@ window.addEventListener('DOMContentLoaded',()=>{const key='site-theme';const bod
       <span class="download-badge">可用平台 <?= h((string)$availablePlatforms) ?> / <?= h((string)$totalPlatforms) ?></span>
     </div>
     <div class="download-grid">
-      <?php foreach ($downloadPlatforms as $key => $label): $url = dval($downloads, $key, 'url', '#'); $version = dval($downloads, $key, 'version', 'v1.0.0'); $notes = dval($downloads, $key, 'notes', ''); $updatedAt = dval($downloads, $key, 'updated_at', ''); $disabled = (!$url || $url === '#'); $statusLabel = $disabled ? '待发布' : '已发布'; $targetRange = match ($key) { 'android' => 'Android 8.0 及以上', 'ios' => 'iOS 13 及以上', 'windows' => 'Windows 10 / 11', 'mac' => 'macOS 11 及以上', default => '待补充' }; $targetUser = match ($key) { 'android' => '移动端安装与分发', 'ios' => 'iPhone / iPad 用户', 'windows' => '桌面办公环境', 'mac' => 'Apple 芯片与 Intel 设备', default => '通用用户' }; ?>
+      <?php foreach ($downloadPlatforms as $key => $label): $url = dval($downloads, $key, 'url', '#'); $version = dval($downloads, $key, 'version', 'v1.0.0'); $notes = dval($downloads, $key, 'notes', ''); $updatedAt = dval($downloads, $key, 'updated_at', ''); $disabled = (!$url || $url === '#'); $statusLabel = $disabled ? '待发布' : '已发布'; $targetRange = dval($downloads, $key, 'target_range', match ($key) { 'android' => 'Android 8.0 及以上', 'ios' => 'iOS 13 及以上', 'windows' => 'Windows 10 / 11', 'mac' => 'macOS 11 及以上', default => '待补充' }); $targetUser = dval($downloads, $key, 'target_user', match ($key) { 'android' => '移动端安装与分发', 'ios' => 'iPhone / iPad 用户', 'windows' => '桌面办公环境', 'mac' => 'Apple 芯片与 Intel 设备', default => '通用用户' }); $packageSize = dval($downloads, $key, 'package_size', $packageHint); $checksum = dval($downloads, $key, 'checksum', $checksumHint); ?>
       <div class="download-item">
         <div class="download-head">
           <div class="platform-icon"><?= h(platformIcon($key)) ?></div>
@@ -208,8 +208,8 @@ window.addEventListener('DOMContentLoaded',()=>{const key='site-theme';const bod
           <div class="download-extra-item"><span>下载方式</span><span><?= $disabled ? '暂未开放' : '站内直达' ?></span></div>
           <div class="download-extra-item"><span>适用系统</span><span><?= h($targetRange) ?></span></div>
           <div class="download-extra-item"><span>推荐对象</span><span><?= h($targetUser) ?></span></div>
-          <div class="download-extra-item"><span>安装包大小</span><span><?= h($packageHint) ?></span></div>
-          <div class="download-extra-item"><span>校验信息</span><span><?= h($checksumHint) ?></span></div>
+          <div class="download-extra-item"><span>安装包大小</span><span><?= h($packageSize) ?></span></div>
+          <div class="download-extra-item"><span>校验信息</span><span><?= h($checksum) ?></span></div>
         </div>
         <div class="download-ops">
           <span class="ops-badge"><?= $disabled ? '未开放下载' : '支持直接下载' ?></span>

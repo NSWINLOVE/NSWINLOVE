@@ -73,7 +73,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 require __DIR__ . '/layout-top.php';
 ?>
-<div class="topbar"><div class="topbar-main"><h1>内容管理</h1><p>集中维护内容模块。</p></div></div>
+<div class="topbar"><div class="topbar-main"><h1>页面内容</h1><p>对应首页锚点 #guide 与 #faq，同时维护系统要求辅助区块。</p></div></div>
 <div class="panel">
 <?php if ($message): ?><div class="alert-success"><?= h($message) ?></div><?php endif; ?>
 <?php if ($error): ?><div class="alert-error"><?= h($error) ?></div><?php endif; ?>
@@ -89,6 +89,7 @@ require __DIR__ . '/layout-top.php';
     .content-editor .input-ui{margin-bottom:14px}
     .content-editor .textarea-ui{min-height:220px;border-radius:12px;background:#fff;border:1px solid rgba(15,23,42,.10);color:#0f172a;font-family:SFMono-Regular,Consolas,Monaco,monospace;line-height:1.75;box-shadow:none;padding:16px}
     .content-editor .textarea-ui:focus{border-color:#1d4ed8;box-shadow:0 0 0 3px rgba(59,130,246,.14)}
+    .editor-note{margin-bottom:14px;padding:12px 14px;border-radius:12px;background:#eff6ff;border:1px solid rgba(59,130,246,.14);color:#1e3a8a;font-size:13px;line-height:1.7}
   </style>
 
   <div class="content-tabs" id="contentTabs">
@@ -102,6 +103,7 @@ require __DIR__ . '/layout-top.php';
       <?= csrf_input() ?>
       <input type="hidden" name="section" value="requirements">
       <div class="content-editor" style="margin-bottom:18px;">
+        <div class="editor-note">这是首页的辅助内容区，不单独对应锚点，但会展示在下载页下方作为系统要求说明。</div>
         <label class="field-label">系统要求标题</label>
         <input class="input-ui" type="text" name="requirements_title" value="<?= h($content['requirements_title'] ?? '系统要求') ?>">
         <label class="field-label">系统要求内容（支持直接编写代码或每行一条）</label>
@@ -116,6 +118,7 @@ require __DIR__ . '/layout-top.php';
       <?= csrf_input() ?>
       <input type="hidden" name="section" value="guide">
       <div class="content-editor" style="margin-bottom:18px;">
+        <div class="editor-note">对应首页 <strong>#guide</strong> 区块。建议每行一条步骤，前台会自动拆成步骤列表。</div>
         <label class="field-label">安装教程标题</label>
         <input class="input-ui" type="text" name="guide_title" value="<?= h($content['guide_title'] ?? '安装教程') ?>">
         <label class="field-label">安装教程内容（支持直接编写代码或每行一步）</label>
@@ -130,9 +133,10 @@ require __DIR__ . '/layout-top.php';
       <?= csrf_input() ?>
       <input type="hidden" name="section" value="faq">
       <div class="content-editor" style="margin-bottom:18px;">
+        <div class="editor-note">对应首页 <strong>#faq</strong> 区块。请按 <code>问题 => 答案</code> 一行一条填写。</div>
         <label class="field-label">常见问题标题</label>
         <input class="input-ui" type="text" name="faq_title" value="<?= h($content['faq_title'] ?? '常见问题') ?>">
-        <label class="field-label">常见问题内容（支持直接编写代码或按“问题 => 答案”分行）</label>
+        <label class="field-label">常见问题内容（按“问题 => 答案”分行）</label>
         <textarea class="textarea-ui" name="faq"><?= h($content['faq'] ?? '') ?></textarea>
         <div style="display:flex;justify-content:flex-end;margin-top:14px;"><button class="btn primary" type="submit">保存常见问题</button></div>
       </div>

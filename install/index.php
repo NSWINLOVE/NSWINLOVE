@@ -283,5 +283,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$success) {
     </div>
   </div>
 </div>
+<?php require $baseDir . '/system/common-footer.php'; site_footer_render($defaultSite); ?>
 </body>
 </html>

@@ -19,12 +19,20 @@ Thumbs.db
 
 # Trash and temporary recovery files
 .trash/*
+.backup/
 
 # Storage runtime data
 storage/*.log
 storage/*.tmp
 storage/*.cache
+storage/*.json
+storage/*.lock
 storage/sessions/
 
 # Upload temp files
 uploads/tmp/
+uploads/site/
+
+# Local environment / dependencies
+.user.ini
+vendor/

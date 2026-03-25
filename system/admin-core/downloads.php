@@ -24,43 +24,55 @@ $currentSlug = $currentSlug !== '' ? $currentSlug : 'admin';
 $currentPage = 'downloads';
 $message = '';
 $error = '';
+$activeDownloadPane = 'androidPane';
 
 function h(?string $value): string { return htmlspecialchars((string)$value, ENT_QUOTES, 'UTF-8'); }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     csrf_verify_or_die();
+    $section = trim($_POST['section'] ?? 'android');
+    $activeDownloadPane = $section . 'Pane';
 
     try {
-        $newDownloads = [];
-        foreach (['android', 'ios', 'windows', 'mac'] as $key) {
-            $newDownloads[$key] = [
-                'url' => trim($_POST[$key . '_url'] ?? '#'),
-                'version' => trim($_POST[$key . '_version'] ?? 'v1.0.0'),
-                'notes' => trim($_POST[$key . '_notes'] ?? ''),
-                'updated_at' => trim($_POST[$key . '_updated_at'] ?? date('Y-m-d')),
-                'hits' => (int)($downloads[$key]['hits'] ?? 0),
+        if ($section === 'release') {
+            $newRelease = [
+                'title' => trim($_POST['release_title'] ?? '最新版本更新'),
+                'content' => trim($_POST['release_content'] ?? ''),
             ];
-        }
-
-        $newRelease = [
-            'title' => trim($_POST['release_title'] ?? '最新版本更新'),
-            'content' => trim($_POST['release_content'] ?? ''),
-        ];
-
-        $saved = save_install_config($configFile, function (array $current) use ($newDownloads, $newRelease) {
-            $current['downloads'] = $newDownloads;
-            $current['release'] = $newRelease;
-            return $current;
-        });
-
-        if (!$saved) {
-            $error = '下载配置保存失败。';
+            $saved = save_install_config($configFile, function (array $current) use ($newRelease) {
+                $current['release'] = $newRelease;
+                return $current;
+            });
+            if (!$saved) {
+                $error = '更新说明保存失败。';
+            } else {
+                $config = load_install_config($configFile);
+                $release = $config['release'] ?? [];
+                admin_log('update_downloads_release');
+                $message = '更新说明已保存。';
+            }
         } else {
-            $config = load_install_config($configFile);
-            $downloads = $config['downloads'] ?? [];
-            $release = $config['release'] ?? [];
-            admin_log('update_downloads', ['platforms' => ['android', 'ios', 'windows', 'mac'], 'qrcode_removed' => true]);
-            $message = '下载配置和更新说明已保存，首页二维码模块已彻底移除。';
+            $currentItem = $downloads[$section] ?? [];
+            $newItem = [
+                'url' => trim($_POST[$section . '_url'] ?? '#'),
+                'version' => trim($_POST[$section . '_version'] ?? 'v1.0.0'),
+                'notes' => trim($_POST[$section . '_notes'] ?? ''),
+                'updated_at' => trim($_POST[$section . '_updated_at'] ?? date('Y-m-d')),
+                'hits' => (int)($currentItem['hits'] ?? 0),
+            ];
+            $saved = save_install_config($configFile, function (array $current) use ($section, $newItem) {
+                $current['downloads'] = $current['downloads'] ?? [];
+                $current['downloads'][$section] = $newItem;
+                return $current;
+            });
+            if (!$saved) {
+                $error = '平台下载配置保存失败。';
+            } else {
+                $config = load_install_config($configFile);
+                $downloads = $config['downloads'] ?? [];
+                admin_log('update_downloads', ['platform' => $section]);
+                $message = '当前平台下载配置已保存。';
+            }
         }
     } catch (Throwable $e) {
         $error = $e->getMessage();
@@ -68,25 +80,94 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 require __DIR__ . '/layout-top.php';
 ?>
-<div class="topbar"><div class="topbar-main"><h1>下载管理</h1><p>统一维护下载链接、版本信息与更新说明。</p></div></div>
+<div class="topbar"><div class="topbar-main"><h1>下载管理</h1><p>集中维护下载配置。</p></div></div>
 <div class="panel">
 <?php if ($message): ?><div class="alert-success"><?= h($message) ?></div><?php endif; ?>
 <?php if ($error): ?><div class="alert-error"><?= h($error) ?></div><?php endif; ?>
-<form method="post">
-<?= csrf_input() ?>
-<?php foreach (['android' => 'Android', 'ios' => 'iOS', 'windows' => 'Windows', 'mac' => 'macOS'] as $key => $label): ?>
-  <div class="section-head"><h3 class="section-title"><span>🤖</span><span><?= h($label) ?></span></h3><span class="section-sub">平台配置</span></div>
-  <div class="field-grid-3">
-    <p><label class="field-label">主下载链接</label><input class="input-ui" type="text" name="<?= h($key) ?>_url" value="<?= h($downloads[$key]['url'] ?? '#') ?>"></p>
-    <p><label class="field-label">版本号</label><input class="input-ui" type="text" name="<?= h($key) ?>_version" value="<?= h($downloads[$key]['version'] ?? 'v1.0.0') ?>"></p>
-    <p><label class="field-label">更新时间</label><input class="input-ui" type="text" name="<?= h($key) ?>_updated_at" value="<?= h($downloads[$key]['updated_at'] ?? date('Y-m-d')) ?>"></p>
-  </div>
-  <p><label class="field-label">说明</label><input class="input-ui" type="text" name="<?= h($key) ?>_notes" value="<?= h($downloads[$key]['notes'] ?? '') ?>"></p>
-<?php endforeach; ?>
-<h3>更新说明</h3>
-<p><label class="field-label">标题</label><input class="input-ui" type="text" name="release_title" value="<?= h($release['title'] ?? '最新版本更新') ?>"></p>
-<p><label class="field-label">内容</label><textarea class="textarea-ui" name="release_content"><?= h($release['content'] ?? '') ?></textarea></p>
-<p><button class="btn primary" type="submit">保存下载配置</button></p>
-</form>
+
+<style>
+  .download-tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;padding:4px;background:#f3f4f6;border:1px solid rgba(15,23,42,.06);border-radius:12px}
+  .download-tab{appearance:none;border:none;background:transparent;color:#6b7280;padding:9px 14px;border-radius:10px;font:inherit;font-weight:700;font-size:13px;cursor:pointer;transition:background .18s ease,color .18s ease,box-shadow .18s ease}
+  .download-tab.active{background:#fff;color:#111827;box-shadow:inset 0 0 0 1px rgba(15,23,42,.06)}
+  .download-pane{display:none}
+  .download-pane.active{display:block}
+  .download-editor{padding:14px;border-radius:14px;background:#f8fafc;border:1px solid rgba(15,23,42,.05)}
+  .download-editor .field-label{font-size:13px}
+  .download-editor .input-ui{margin-bottom:14px}
+  .download-editor .textarea-ui{min-height:100px;border-radius:12px;background:#fff;border:1px solid rgba(15,23,42,.10);color:#0f172a;line-height:1.75;box-shadow:none;padding:16px}
+  .download-editor .textarea-ui:focus{border-color:#1d4ed8;box-shadow:0 0 0 3px rgba(59,130,246,.14)}
+</style>
+
+<div class="download-tabs" id="downloadTabs">
+  <button class="download-tab" type="button" data-pane="androidPane">Android</button>
+  <button class="download-tab" type="button" data-pane="iosPane">iOS</button>
+  <button class="download-tab" type="button" data-pane="windowsPane">Windows</button>
+  <button class="download-tab" type="button" data-pane="macPane">macOS</button>
+  <button class="download-tab" type="button" data-pane="releasePane">更新说明</button>
 </div>
+
+<?php foreach (['android' => 'Android', 'ios' => 'iOS', 'windows' => 'Windows', 'mac' => 'macOS'] as $key => $label): ?>
+  <div class="download-pane" id="<?= h($key) ?>Pane">
+    <form method="post">
+      <?= csrf_input() ?>
+      <input type="hidden" name="section" value="<?= h($key) ?>">
+      <div class="download-editor" style="margin-bottom:18px;">
+        <label class="field-label"><?= h($label) ?> 下载链接</label>
+        <input class="input-ui" type="text" name="<?= h($key) ?>_url" value="<?= h($downloads[$key]['url'] ?? '#') ?>">
+
+        <div class="field-grid-2">
+          <div>
+            <label class="field-label">版本号</label>
+            <input class="input-ui" type="text" name="<?= h($key) ?>_version" value="<?= h($downloads[$key]['version'] ?? 'v1.0.0') ?>">
+          </div>
+          <div>
+            <label class="field-label">更新时间</label>
+            <input class="input-ui" type="text" name="<?= h($key) ?>_updated_at" value="<?= h($downloads[$key]['updated_at'] ?? date('Y-m-d')) ?>">
+          </div>
+        </div>
+
+        <label class="field-label">说明</label>
+        <textarea class="textarea-ui" name="<?= h($key) ?>_notes" style="min-height:240px;"><?= h($downloads[$key]['notes'] ?? '') ?></textarea>
+        <div style="display:flex;justify-content:flex-end;margin-top:14px;"><button class="btn primary" type="submit">保存 <?= h($label) ?></button></div>
+      </div>
+    </form>
+  </div>
+<?php endforeach; ?>
+
+<div class="download-pane" id="releasePane">
+  <form method="post">
+    <?= csrf_input() ?>
+    <input type="hidden" name="section" value="release">
+    <div class="download-editor" style="margin-bottom:18px;">
+      <label class="field-label">更新说明标题</label>
+      <input class="input-ui" type="text" name="release_title" value="<?= h($release['title'] ?? '最新版本更新') ?>">
+      <label class="field-label">更新说明内容（支持直接编写代码或富文本内容）</label>
+      <textarea class="textarea-ui" name="release_content" style="min-height:320px;font-family:SFMono-Regular,Consolas,Monaco,monospace;"><?= h($release['content'] ?? '') ?></textarea>
+      <div style="display:flex;justify-content:flex-end;margin-top:14px;"><button class="btn primary" type="submit">保存更新说明</button></div>
+    </div>
+  </form>
+</div>
+</div>
+<script>
+(function(){
+  const tabs = Array.from(document.querySelectorAll('.download-tab'));
+  const panes = Array.from(document.querySelectorAll('.download-pane'));
+  const activePaneId = <?= json_encode($activeDownloadPane, JSON_UNESCAPED_UNICODE) ?>;
+
+  function activatePane(target) {
+    tabs.forEach(function(item){ item.classList.toggle('active', item.getAttribute('data-pane') === target); });
+    panes.forEach(function(pane){ pane.classList.toggle('active', pane.id === target); });
+  }
+
+  tabs.forEach(function(tab){
+    tab.addEventListener('click', function(){
+      activatePane(tab.getAttribute('data-pane'));
+    });
+  });
+
+  if (activePaneId) {
+    activatePane(activePaneId);
+  }
+})();
+</script>
 <?php require __DIR__ . '/layout-bottom.php'; ?>

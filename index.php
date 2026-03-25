@@ -8,6 +8,11 @@ $content = $config['content'] ?? [];
 $notice = $config['notice'] ?? [];
 $installed = !empty($config['installed']);
 
+if (!$installed) {
+    header('Location: /install/');
+    exit;
+}
+
 function h(?string $value): string { return htmlspecialchars((string)$value, ENT_QUOTES, 'UTF-8'); }
 function dval(array $downloads, string $platform, string $key, string $default = ''): string { return (string)($downloads[$platform][$key] ?? $default); }
 function platformIcon(string $platform): string { return match ($platform) { 'android' => '🤖', 'ios' => '🍎', 'windows' => '🪟', 'mac' => '💻', default => '⬇', }; }
@@ -113,9 +118,9 @@ window.addEventListener('DOMContentLoaded',()=>{const key='site-theme';const bod
     </div>
   </div>
 
-  <div class="sections" id="features"><div class="card section-card"><h3><?= h($releaseTitle) ?></h3><div class="release-list"><?php if ($releaseLines): foreach ($releaseLines as $line): ?><div class="release-item"><?= h($line) ?></div><?php endforeach; else: ?><div class="release-item">暂无更新说明</div><?php endif; ?></div></div><div class="card section-card"><h3>页面说明</h3><p>白天 / 黑夜切换现在已经带整页平滑过渡，背景、卡片、按钮和内容区会一起柔和切换。</p></div></div>
+  <div class="sections" id="features"><div class="card section-card"><h3><?= h($releaseTitle) ?></h3><div class="release-list"><?php if ($releaseLines): foreach ($releaseLines as $line): ?><div class="release-item"><?= h($line) ?></div><?php endforeach; else: ?><div class="release-item">暂无更新说明</div><?php endif; ?></div></div></div>
   <div class="extra"><div class="card section-card" id="guide"><h3><?= h($guideTitle) ?></h3><div class="simple-list"><?php foreach ($guideLines ?: ['暂无安装教程'] as $line): ?><div class="simple-item"><?= h($line) ?></div><?php endforeach; ?></div></div><div class="card section-card"><h3><?= h($requirementsTitle) ?></h3><div class="simple-list"><?php foreach ($requirementsLines ?: ['暂无系统要求'] as $line): ?><div class="simple-item"><?= h($line) ?></div><?php endforeach; ?></div></div><div class="card section-card"><h3><?= h($faqTitle) ?></h3><div class="faq-list"><?php if ($faqItems): foreach ($faqItems as $item): ?><div class="faq-item"><strong><?= h($item['q']) ?></strong><span><?= h($item['a']) ?></span></div><?php endforeach; else: ?><div class="faq-item"><strong>暂无常见问题</strong><span>后续可在后台继续补充。</span></div><?php endif; ?></div></div></div>
-  <div class="footer"><?= h($title) ?> · 官方下载与安装入口</div>
+  <?php require __DIR__ . '/system/common-footer.php'; site_footer_render($site); ?>
 </div>
 <div id="toast" class="toast"></div>
 </body>

@@ -23,19 +23,33 @@ $currentSlug = $currentSlug !== '' ? $currentSlug : 'admin';
 $currentPage = 'content';
 $message = '';
 $error = '';
+$activeContentPane = 'requirementsPane';
 
 function h(?string $value): string { return htmlspecialchars((string)$value, ENT_QUOTES, 'UTF-8'); }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     csrf_verify_or_die();
-    $newContent = [
-        'requirements_title' => trim($_POST['requirements_title'] ?? '系统要求'),
-        'requirements' => trim($_POST['requirements'] ?? ''),
-        'guide_title' => trim($_POST['guide_title'] ?? '安装教程'),
-        'guide' => trim($_POST['guide'] ?? ''),
-        'faq_title' => trim($_POST['faq_title'] ?? '常见问题'),
-        'faq' => trim($_POST['faq'] ?? ''),
-    ];
+    $section = trim($_POST['section'] ?? 'requirements');
+    $activeContentPane = $section . 'Pane';
+
+    $newContent = [];
+    if ($section === 'requirements') {
+        $newContent = [
+            'requirements_title' => trim($_POST['requirements_title'] ?? '系统要求'),
+            'requirements' => trim($_POST['requirements'] ?? ''),
+        ];
+    } elseif ($section === 'guide') {
+        $newContent = [
+            'guide_title' => trim($_POST['guide_title'] ?? '安装教程'),
+            'guide' => trim($_POST['guide'] ?? ''),
+        ];
+    } elseif ($section === 'faq') {
+        $newContent = [
+            'faq_title' => trim($_POST['faq_title'] ?? '常见问题'),
+            'faq' => trim($_POST['faq'] ?? ''),
+        ];
+    }
+
     $saved = save_install_config($configFile, function (array $current) use ($newContent) {
         $current['content'] = array_merge($current['content'] ?? [], $newContent);
         unset(
@@ -53,28 +67,98 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } else {
         $config = load_install_config($configFile);
         $content = $config['content'] ?? [];
-        admin_log('update_content', ['sections' => ['requirements', 'guide', 'faq']]);
-        $message = '前台内容模块已保存。';
+        admin_log('update_content', ['section' => $section]);
+        $message = '当前内容已保存。';
     }
 }
 require __DIR__ . '/layout-top.php';
 ?>
-<div class="topbar"><div class="topbar-main"><h1>内容管理</h1><p>维护教程、系统要求与 FAQ 内容。</p></div></div>
+<div class="topbar"><div class="topbar-main"><h1>内容管理</h1><p>集中维护内容模块。</p></div></div>
 <div class="panel">
 <?php if ($message): ?><div class="alert-success"><?= h($message) ?></div><?php endif; ?>
 <?php if ($error): ?><div class="alert-error"><?= h($error) ?></div><?php endif; ?>
-<form method="post">
-  <?= csrf_input() ?>
-  <div class="section-head"><h3 class="section-title"><span>📚</span><span>内容配置</span></h3><span class="section-sub">前台内容</span></div>
-  <div class="field-grid-2">
-    <p><label class="field-label">系统要求标题</label><input class="input-ui" type="text" name="requirements_title" value="<?= h($content['requirements_title'] ?? '系统要求') ?>"></p>
-    <p><label class="field-label">安装教程标题</label><input class="input-ui" type="text" name="guide_title" value="<?= h($content['guide_title'] ?? '安装教程') ?>"></p>
+
+  <style>
+    .content-tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;padding:4px;background:#f3f4f6;border:1px solid rgba(15,23,42,.06);border-radius:12px}
+    .content-tab{appearance:none;border:none;background:transparent;color:#6b7280;padding:9px 14px;border-radius:10px;font:inherit;font-weight:700;font-size:13px;cursor:pointer;transition:background .18s ease,color .18s ease,box-shadow .18s ease}
+    .content-tab.active{background:#fff;color:#111827;box-shadow:inset 0 0 0 1px rgba(15,23,42,.06)}
+    .content-pane{display:none}
+    .content-pane.active{display:block}
+    .content-editor{padding:14px;border-radius:14px;background:#f8fafc;border:1px solid rgba(15,23,42,.05)}
+    .content-editor .field-label{font-size:13px}
+    .content-editor .input-ui{margin-bottom:14px}
+    .content-editor .textarea-ui{min-height:220px;border-radius:12px;background:#fff;border:1px solid rgba(15,23,42,.10);color:#0f172a;font-family:SFMono-Regular,Consolas,Monaco,monospace;line-height:1.75;box-shadow:none;padding:16px}
+    .content-editor .textarea-ui:focus{border-color:#1d4ed8;box-shadow:0 0 0 3px rgba(59,130,246,.14)}
+  </style>
+
+  <div class="content-tabs" id="contentTabs">
+    <button class="content-tab" type="button" data-pane="requirementsPane">系统要求</button>
+    <button class="content-tab" type="button" data-pane="guidePane">安装教程</button>
+    <button class="content-tab" type="button" data-pane="faqPane">常见问题</button>
   </div>
-  <p><label class="field-label">系统要求（每行一条）</label><textarea class="textarea-ui" name="requirements"><?= h($content['requirements'] ?? '') ?></textarea></p>
-  <p><label class="field-label">安装教程（每行一步）</label><textarea class="textarea-ui" name="guide"><?= h($content['guide'] ?? '') ?></textarea></p>
-  <p><label class="field-label">常见问题标题</label><input class="input-ui" type="text" name="faq_title" value="<?= h($content['faq_title'] ?? '常见问题') ?>"></p>
-  <p><label class="field-label">常见问题（格式：问题 => 答案，每行一组）</label><textarea class="textarea-ui" name="faq"><?= h($content['faq'] ?? '') ?></textarea></p>
-  <p><button class="btn primary" type="submit">保存内容</button></p>
-</form>
+
+  <div class="content-pane" id="requirementsPane">
+    <form method="post">
+      <?= csrf_input() ?>
+      <input type="hidden" name="section" value="requirements">
+      <div class="content-editor" style="margin-bottom:18px;">
+        <label class="field-label">系统要求标题</label>
+        <input class="input-ui" type="text" name="requirements_title" value="<?= h($content['requirements_title'] ?? '系统要求') ?>">
+        <label class="field-label">系统要求内容（支持直接编写代码或每行一条）</label>
+        <textarea class="textarea-ui" name="requirements"><?= h($content['requirements'] ?? '') ?></textarea>
+        <div style="display:flex;justify-content:flex-end;margin-top:14px;"><button class="btn primary" type="submit">保存系统要求</button></div>
+      </div>
+    </form>
+  </div>
+
+  <div class="content-pane" id="guidePane">
+    <form method="post">
+      <?= csrf_input() ?>
+      <input type="hidden" name="section" value="guide">
+      <div class="content-editor" style="margin-bottom:18px;">
+        <label class="field-label">安装教程标题</label>
+        <input class="input-ui" type="text" name="guide_title" value="<?= h($content['guide_title'] ?? '安装教程') ?>">
+        <label class="field-label">安装教程内容（支持直接编写代码或每行一步）</label>
+        <textarea class="textarea-ui" name="guide"><?= h($content['guide'] ?? '') ?></textarea>
+        <div style="display:flex;justify-content:flex-end;margin-top:14px;"><button class="btn primary" type="submit">保存安装教程</button></div>
+      </div>
+    </form>
+  </div>
+
+  <div class="content-pane" id="faqPane">
+    <form method="post">
+      <?= csrf_input() ?>
+      <input type="hidden" name="section" value="faq">
+      <div class="content-editor" style="margin-bottom:18px;">
+        <label class="field-label">常见问题标题</label>
+        <input class="input-ui" type="text" name="faq_title" value="<?= h($content['faq_title'] ?? '常见问题') ?>">
+        <label class="field-label">常见问题内容（支持直接编写代码或按“问题 => 答案”分行）</label>
+        <textarea class="textarea-ui" name="faq"><?= h($content['faq'] ?? '') ?></textarea>
+        <div style="display:flex;justify-content:flex-end;margin-top:14px;"><button class="btn primary" type="submit">保存常见问题</button></div>
+      </div>
+    </form>
+  </div>
 </div>
+<script>
+(function(){
+  const tabs = Array.from(document.querySelectorAll('.content-tab'));
+  const panes = Array.from(document.querySelectorAll('.content-pane'));
+  const activePaneId = <?= json_encode($activeContentPane, JSON_UNESCAPED_UNICODE) ?>;
+
+  function activatePane(target) {
+    tabs.forEach(function(item){ item.classList.toggle('active', item.getAttribute('data-pane') === target); });
+    panes.forEach(function(pane){ pane.classList.toggle('active', pane.id === target); });
+  }
+
+  tabs.forEach(function(tab){
+    tab.addEventListener('click', function(){
+      activatePane(tab.getAttribute('data-pane'));
+    });
+  });
+
+  if (activePaneId) {
+    activatePane(activePaneId);
+  }
+})();
+</script>
 <?php require __DIR__ . '/layout-bottom.php'; ?>

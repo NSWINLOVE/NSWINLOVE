@@ -225,20 +225,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     } elseif ($section === 'display') {
         $footerText = trim($_POST['footer_text'] ?? ($site['footer_text'] ?? ''));
-        $showRelease = isset($_POST['show_release']);
-        $showGuide = isset($_POST['show_guide']);
-        $showRequirements = isset($_POST['show_requirements']);
-        $showFaq = isset($_POST['show_faq']);
-        $showFooter = isset($_POST['show_footer']);
 
-        $saved = save_install_config($configFile, function (array $current) use ($footerText, $showRelease, $showGuide, $showRequirements, $showFaq, $showFooter) {
+        $saved = save_install_config($configFile, function (array $current) use ($footerText) {
             $current['site'] = $current['site'] ?? [];
             $current['site']['footer_text'] = $footerText;
-            $current['site']['show_release'] = $showRelease;
-            $current['site']['show_guide'] = $showGuide;
-            $current['site']['show_requirements'] = $showRequirements;
-            $current['site']['show_faq'] = $showFaq;
-            $current['site']['show_footer'] = $showFooter;
             return $current;
         });
         if (!$saved) {
@@ -449,15 +439,10 @@ require __DIR__ . '/layout-top.php';
       <?= csrf_input() ?>
       <input type="hidden" name="section" value="display">
       <div class="settings-editor" style="margin-bottom:18px;">
+        <div class="field-help" style="margin:0 0 12px;">当前首页的下载中心、更新说明、安装教程、系统要求和常见问题都属于固定结构，不再通过这里的旧开关控制显示。这里保留站点底部展示文案设置。</div>
         <label class="field-label">底部文字</label>
         <input class="input-ui" type="text" name="footer_text" value="<?= h($site['footer_text'] ?? '') ?>">
-        <div class="toggle-grid">
-          <label class="toggle-item"><input type="checkbox" name="show_release" <?= !empty($site['show_release']) ? 'checked' : '' ?>> <span>显示更新说明</span></label>
-          <label class="toggle-item"><input type="checkbox" name="show_guide" <?= !empty($site['show_guide']) ? 'checked' : '' ?>> <span>显示安装教程</span></label>
-          <label class="toggle-item"><input type="checkbox" name="show_requirements" <?= !empty($site['show_requirements']) ? 'checked' : '' ?>> <span>显示系统要求</span></label>
-          <label class="toggle-item"><input type="checkbox" name="show_faq" <?= !empty($site['show_faq']) ? 'checked' : '' ?>> <span>显示常见问题</span></label>
-          <label class="toggle-item"><input type="checkbox" name="show_footer" <?= !empty($site['show_footer']) ? 'checked' : '' ?>> <span>显示公共底部</span></label>
-        </div>
+        <div class="field-help">用于首页最底部的简短版权或补充说明文本。</div>
         <div class="settings-actions"><button class="btn primary" type="submit">保存显示设置</button></div>
       </div>
     </form>

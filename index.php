@@ -68,11 +68,11 @@ $releaseStage = $availablePlatforms > 0 ? '公开发行版' : '发布准备中';
 $packageHint = '待补充';
 $checksumHint = '待提供';
 $defaultNavigation = [
-    ['label' => '下载中心', 'anchor' => '#downloads', 'children' => []],
-    ['label' => '版本更新', 'anchor' => '#release', 'children' => []],
-    ['label' => '使用说明', 'anchor' => '', 'children' => [
-        ['label' => '安装教程', 'anchor' => '#guide'],
-        ['label' => '常见问题', 'anchor' => '#faq'],
+    ['label' => '导航一', 'anchor' => '#downloads', 'children' => []],
+    ['label' => '导航二', 'anchor' => '#release', 'children' => []],
+    ['label' => '导航三', 'anchor' => '', 'children' => [
+        ['label' => '子导航一', 'anchor' => '#guide'],
+        ['label' => '子导航二', 'anchor' => '#faq'],
     ]],
 ];
 $navigation = is_array($navigation) && $navigation ? $navigation : $defaultNavigation;

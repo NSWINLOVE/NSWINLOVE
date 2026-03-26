@@ -122,6 +122,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$success) {
                     password VARCHAR(255) NOT NULL,
                     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
                 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+                $installSummary[] = '已检查/创建数据表：admins';
+                $pdo->exec("CREATE TABLE IF NOT EXISTS settings (
+                    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+                    `key` VARCHAR(191) NOT NULL UNIQUE,
+                    `value` LONGTEXT NULL,
+                    created_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+                    updated_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+                $installSummary[] = '已检查/创建数据表：settings';
+                $pdo->exec("CREATE TABLE IF NOT EXISTS system_settings (
+                    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+                    `setting_key` VARCHAR(191) NOT NULL UNIQUE,
+                    `setting_value` LONGTEXT NULL,
+                    created_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+                    updated_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+                $installSummary[] = '已检查/创建数据表：system_settings';
                 $stmt = $pdo->prepare('SELECT id FROM admins WHERE username = :username LIMIT 1');
                 $stmt->execute(['username' => $form['admin_user']]);
                 $existing = $stmt->fetch();
@@ -158,6 +175,54 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$success) {
                 if (file_put_contents($configFile, exportConfig($newConfig)) === false) {
                     throw new RuntimeException('配置文件写入失败。');
                 }
+
+                $defaultSettings = [
+                    'site_meta' => [
+                        'title' => $newConfig['site']['title'],
+                        'description' => $newConfig['site']['description'],
+                        'keywords' => $newConfig['site']['keywords'],
+                        'admin_slug' => $newConfig['site']['admin_slug'],
+                        'logo' => $newConfig['site']['logo'],
+                        'favicon' => $newConfig['site']['favicon'],
+                    ],
+                    'site_display' => [
+                        'footer_text' => $newConfig['site']['footer_text'] ?? '',
+                        'footer_code' => $newConfig['site']['footer_code'] ?? '',
+                    ],
+                    'site_notice' => $newConfig['notice'] ?? ['enabled' => false, 'title' => '站点公告', 'content' => ''],
+                    'site_navigation' => $newConfig['navigation'] ?? [],
+                    'site_downloads' => $newConfig['downloads'] ?? [],
+                    'site_release' => $newConfig['release'] ?? ['title' => '最新版本更新', 'content' => ''],
+                    'site_content' => $newConfig['content'] ?? [],
+                ];
+                $settingStmt = $pdo->prepare('INSERT INTO settings(`key`, `value`) VALUES(:key, :value) ON DUPLICATE KEY UPDATE `value` = VALUES(`value`)');
+                foreach ($defaultSettings as $key => $value) {
+                    $payload = json_encode($value, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+                    $settingStmt->execute([
+                        'key' => $key,
+                        'value' => $payload,
+                    ]);
+                }
+
+                $systemSettings = [
+                    'site_name' => $newConfig['site']['title'],
+                    'site_description' => $newConfig['site']['description'],
+                    'site_keywords' => $newConfig['site']['keywords'],
+                    'site_logo' => $newConfig['site']['logo'],
+                    'site_favicon' => $newConfig['site']['favicon'],
+                    'admin_slug' => $newConfig['site']['admin_slug'],
+                    'footer_text' => $newConfig['site']['footer_text'] ?? '',
+                    'footer_code' => $newConfig['site']['footer_code'] ?? '',
+                ];
+                $systemStmt = $pdo->prepare('INSERT INTO system_settings(`setting_key`, `setting_value`) VALUES(:key, :value) ON DUPLICATE KEY UPDATE `setting_value` = VALUES(`setting_value`)');
+                foreach ($systemSettings as $key => $value) {
+                    $systemStmt->execute([
+                        'key' => $key,
+                        'value' => (string)$value,
+                    ]);
+                }
+                $installSummary[] = '已初始化 system_settings 基础键：site_name、site_description、site_keywords、site_logo、site_favicon、admin_slug、footer_text、footer_code';
+
                 deployAdminEntry($baseDir, $form['admin_slug']);
                 if (file_put_contents($lockFile, date('c')) === false) {
                     throw new RuntimeException('安装锁写入失败。');

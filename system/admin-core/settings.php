@@ -233,20 +233,7 @@ $displaySettings = site_display_load($configFile);
             admin_log('update_site_display');
             $message = '显示设置已保存。';
         }
-    } elseif ($section === 'footer') {
-$footerCode = (string)($_POST['footer_code'] ?? '');
-        $displaySettings = site_display_load($configFile);
-        $displaySettings['footer_code'] = $footerCode;
-        $saved = site_display_save($configFile, $displaySettings);
-        if (!$saved) {
-            $error = '公共底部保存失败。';
-        } else {
-            $config = load_install_config($configFile);
-            $site = site_meta_load($configFile);
-$displaySettings = site_display_load($configFile);
-            admin_log('update_footer_code', ['length' => strlen((string)($site['footer_code'] ?? ''))]);
-            $message = '公共底部已保存。';
-        }
+
     } elseif ($section === 'mail') {
         if (!$pdo) {
             $error = '数据库未连接，无法保存邮件设置。';
@@ -441,17 +428,7 @@ require __DIR__ . '/layout-top.php';
     </form>
   </div>
 
-  <div class="settings-pane" id="footerPane">
-    <form method="post">
-      <?= csrf_input() ?>
-      <input type="hidden" name="section" value="footer">
-      <div class="settings-editor" style="margin-bottom:18px;">
-        <label class="field-label">公共底部代码</label>
-        <textarea class="textarea-ui" name="footer_code" style="min-height:220px;font-family:SFMono-Regular,Consolas,Monaco,monospace;"><?= h($displaySettings['footer_code'] ?? '') ?></textarea>
-        <div class="settings-actions"><button class="btn primary" type="submit">保存公共底部</button></div>
-      </div>
-    </form>
-  </div>
+
 
   <div class="settings-pane" id="mailPane">
     <form method="post">

@@ -11,5 +11,5 @@ if (empty($_SESSION['admin_logged_in'])) {
     exit;
 }
 
-header('Location: /' . $slug . '/settings.php#footerPane');
+header('Location: /' . $slug . '/settings.php');
 exit;

@@ -1,4 +1,5 @@
 <?php
+require __DIR__ . '/system/admin-core/config_helper.php';
 $configFile = __DIR__ . '/config/install.php';
 $config = file_exists($configFile) ? require $configFile : [];
 $site = $config['site'] ?? [];
@@ -7,7 +8,7 @@ $release = $config['release'] ?? [];
 $content = $config['content'] ?? [];
 $notice = $config['notice'] ?? [];
 $installed = !empty($config['installed']);
-$navigation = $config['navigation'] ?? [];
+$navigation = site_navigation_load($configFile);
 
 if (!$installed) {
     header('Location: /install/');

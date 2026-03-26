@@ -35,8 +35,8 @@ $diskTotal = @disk_total_space($baseDir);
 $diskText = ($diskFree !== false && $diskTotal !== false && $diskTotal > 0)
     ? format_bytes((float)$diskFree) . ' / ' . format_bytes((float)$diskTotal) . ' 可用'
     : '不可用';
-$serverStateText = file_exists($baseDir . '/storage/install.lock') ? '运行正常' : '待确认';
-$serverStateColor = file_exists($baseDir . '/storage/install.lock') ? '#16a34a' : '#dc2626';
+$serverStateText = '运行正常';
+$serverStateColor = '#16a34a';
 $dbStateText = (!empty($db['host']) && !empty($db['database'])) ? '配置已填写' : '配置待确认';
 $dbStateColor = (!empty($db['host']) && !empty($db['database'])) ? '#16a34a' : '#dc2626';
 $currentAdmin = null;

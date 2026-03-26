@@ -91,7 +91,7 @@ function format_bytes(float $bytes): string {
   </div>
   <div class="panel" style="padding:18px;">
     <div style="color:#64748b;font-size:13px;">安装状态</div>
-    <div style="margin-top:8px;font-size:28px;font-weight:900;<?= ($installed && $lockExists) ? 'color:#16a34a;' : 'color:#dc2626;' ?>"><?= ($installed && $lockExists) ? '已安装' : '未完成' ?></div>
+    <div style="margin-top:8px;font-size:28px;font-weight:900;<?= $configExists ? 'color:#16a34a;' : 'color:#dc2626;' ?>"><?= $configExists ? '配置有效' : '待确认' ?></div>
   </div>
   <div class="panel" style="padding:18px;">
     <div style="color:#64748b;font-size:13px;">后台入口</div>

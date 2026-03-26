@@ -117,7 +117,6 @@ $displaySettings = site_display_load($configFile);
                     'index.php' => 'index.php',
                     'dashboard.php' => 'dashboard.php',
                     'logout.php' => 'logout.php',
-                    'stats.php' => 'stats.php',
                     'settings.php' => 'settings.php',
                     'downloads.php' => 'downloads.php',
                     'content.php' => 'content.php',

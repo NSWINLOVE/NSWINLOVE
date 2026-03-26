@@ -37,7 +37,6 @@ function deployAdminEntry(string $baseDir, string $slug): void {
         'index.php' => "<?php require __DIR__ . '/../system/admin-core/index.php';\n",
         'dashboard.php' => "<?php require __DIR__ . '/../system/admin-core/dashboard.php';\n",
         'logout.php' => "<?php require __DIR__ . '/../system/admin-core/logout.php';\n",
-        'stats.php' => "<?php require __DIR__ . '/../system/admin-core/stats.php';\n",
         'settings.php' => "<?php require __DIR__ . '/../system/admin-core/settings.php';\n",
         'downloads.php' => "<?php require __DIR__ . '/../system/admin-core/downloads.php';\n",
         'content.php' => "<?php require __DIR__ . '/../system/admin-core/content.php';\n",

@@ -121,9 +121,9 @@ $displaySettings = site_display_load($configFile);
                     'downloads.php' => 'downloads.php',
                     'content.php' => 'content.php',
                     'navigation.php' => 'navigation.php',
+                    'snippets.php' => 'snippets.php',
                     'notice.php' => 'notice.php',
                     'password.php' => 'password.php',
-                    'footer.php' => 'footer.php',
                     'about.php' => 'about.php',
                 ];
                 foreach ($entryMap as $entry => $core) {
@@ -348,7 +348,6 @@ require __DIR__ . '/layout-top.php';
     <button class="settings-tab" type="button" data-pane="logoPane">Logo</button>
     <button class="settings-tab" type="button" data-pane="faviconPane">Favicon</button>
     <button class="settings-tab" type="button" data-pane="displayPane">显示设置</button>
-    <button class="settings-tab" type="button" data-pane="footerPane">公共底部</button>
     <button class="settings-tab" type="button" data-pane="mailPane">邮件设置</button>
   </div>
 

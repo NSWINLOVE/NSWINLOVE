@@ -190,3 +190,35 @@ function site_display_load(string $configFile): array {
 function site_display_save(string $configFile, array $display): bool {
     return db_setting_set($configFile, 'site_display', json_encode($display, JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES));
 }
+
+
+function site_snippets_load(string $configFile): array {
+    $raw = db_setting_get($configFile, 'site_snippets');
+    if (is_string($raw) && $raw !== '') {
+        $decoded = json_decode($raw, true);
+        if (is_array($decoded)) {
+            return array_values($decoded);
+        }
+    }
+    return [];
+}
+
+function site_snippets_save(string $configFile, array $snippets): bool {
+    return db_setting_set($configFile, 'site_snippets', json_encode(array_values($snippets), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
+}
+
+function render_content_with_snippets(string $content, array $snippets): string {
+    if ($content === '' || !$snippets) {
+        return $content;
+    }
+    $map = [];
+    foreach ($snippets as $item) {
+        $key = trim((string)($item['key'] ?? ''));
+        if ($key === '') continue;
+        $map[$key] = (string)($item['code'] ?? '');
+    }
+    return preg_replace_callback('/\{\{\s*code:([a-zA-Z0-9_-]+)\s*\}\}/', static function ($m) use ($map) {
+        $key = $m[1] ?? '';
+        return $map[$key] ?? '';
+    }, $content) ?? $content;
+}

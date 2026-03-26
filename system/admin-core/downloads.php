@@ -17,8 +17,8 @@ $baseDir = dirname(__DIR__, 2);
 $configFile = $baseDir . '/config/install.php';
 $config = load_install_config($configFile);
 $site = $config['site'] ?? [];
-$downloads = $config['downloads'] ?? [];
-$release = $config['release'] ?? [];
+$downloads = site_downloads_load($configFile);
+$release = site_release_load($configFile);
 $currentSlug = trim($site['admin_slug'] ?? 'admin', '/');
 $currentSlug = $currentSlug !== '' ? $currentSlug : 'admin';
 $currentPage = 'downloads';
@@ -39,15 +39,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 'title' => trim($_POST['release_title'] ?? '最新版本更新'),
                 'content' => trim($_POST['release_content'] ?? ''),
             ];
-            $saved = save_install_config($configFile, function (array $current) use ($newRelease) {
-                $current['release'] = $newRelease;
-                return $current;
-            });
+            $saved = site_release_save($configFile, $newRelease);
             if (!$saved) {
                 $error = '更新说明保存失败。';
             } else {
-                $config = load_install_config($configFile);
-                $release = $config['release'] ?? [];
+                $release = site_release_load($configFile);
                 admin_log('update_downloads_release');
                 $message = '更新说明已保存。';
             }
@@ -64,16 +60,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 'checksum' => trim($_POST[$section . '_checksum'] ?? ''),
                 'hits' => (int)($currentItem['hits'] ?? 0),
             ];
-            $saved = save_install_config($configFile, function (array $current) use ($section, $newItem) {
-                $current['downloads'] = $current['downloads'] ?? [];
-                $current['downloads'][$section] = $newItem;
-                return $current;
-            });
+            $downloads[$section] = $newItem;
+            $saved = site_downloads_save($configFile, $downloads);
             if (!$saved) {
                 $error = '平台下载配置保存失败。';
             } else {
-                $config = load_install_config($configFile);
-                $downloads = $config['downloads'] ?? [];
+                $downloads = site_downloads_load($configFile);
                 admin_log('update_downloads', ['platform' => $section]);
                 $message = '当前平台下载配置已保存。';
             }

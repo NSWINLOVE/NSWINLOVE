@@ -17,7 +17,7 @@ $baseDir = dirname(__DIR__, 2);
 $configFile = $baseDir . '/config/install.php';
 $config = load_install_config($configFile);
 $site = $config['site'] ?? [];
-$content = $config['content'] ?? [];
+$content = site_content_load($configFile);
 $currentSlug = trim($site['admin_slug'] ?? 'admin', '/');
 $currentSlug = $currentSlug !== '' ? $currentSlug : 'admin';
 $currentPage = 'content';
@@ -50,23 +50,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         ];
     }
 
-    $saved = save_install_config($configFile, function (array $current) use ($newContent) {
-        $current['content'] = array_merge($current['content'] ?? [], $newContent);
-        unset(
-            $current['content']['showcase_title'],
-            $current['content']['showcase_text'],
-            $current['content']['showcase_main'],
-            $current['content']['showcase_1'],
-            $current['content']['showcase_2'],
-            $current['content']['showcase_3']
-        );
-        return $current;
-    });
+$content = array_merge($content, $newContent);
+    unset(
+        $content['showcase_title'],
+        $content['showcase_text'],
+        $content['showcase_main'],
+        $content['showcase_1'],
+        $content['showcase_2'],
+        $content['showcase_3']
+    );
+    $saved = site_content_save($configFile, $content);
     if (!$saved) {
         $error = '内容保存失败。';
     } else {
         $config = load_install_config($configFile);
-        $content = $config['content'] ?? [];
+        $content = site_content_load($configFile);
         admin_log('update_content', ['section' => $section]);
         $message = '当前内容已保存。';
     }

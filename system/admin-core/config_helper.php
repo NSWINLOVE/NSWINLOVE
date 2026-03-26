@@ -143,3 +143,32 @@ function site_release_load(string $configFile): array {
 function site_release_save(string $configFile, array $release): bool {
     return db_setting_set($configFile, 'site_release', json_encode($release, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
 }
+
+
+function site_content_defaults(): array {
+    return [
+        'requirements_title' => '系统要求',
+        'requirements' => '',
+        'guide_title' => '安装教程',
+        'guide' => '',
+        'faq_title' => '常见问题',
+        'faq' => '',
+    ];
+}
+
+function site_content_load(string $configFile): array {
+    $defaults = site_content_defaults();
+    $raw = db_setting_get($configFile, 'site_content');
+    if (is_string($raw) && $raw !== '') {
+        $decoded = json_decode($raw, true);
+        if (is_array($decoded)) {
+            return array_merge($defaults, $decoded);
+        }
+    }
+    $config = load_install_config($configFile);
+    return array_merge($defaults, $config['content'] ?? []);
+}
+
+function site_content_save(string $configFile, array $content): bool {
+    return db_setting_set($configFile, 'site_content', json_encode($content, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
+}

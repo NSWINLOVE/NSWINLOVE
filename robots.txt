@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://v7.nswin.cn/sitemap.xml

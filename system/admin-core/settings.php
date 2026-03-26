@@ -122,6 +122,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     'settings.php' => 'settings.php',
                     'downloads.php' => 'downloads.php',
                     'content.php' => 'content.php',
+                    'navigation.php' => 'navigation.php',
                     'notice.php' => 'notice.php',
                     'password.php' => 'password.php',
                     'footer.php' => 'footer.php',

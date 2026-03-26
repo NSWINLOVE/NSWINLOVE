@@ -14,6 +14,7 @@ $pageTitleMap = [
     'settings' => '站点设置',
     'downloads' => '下载中心',
     'content' => '页面内容',
+    'navigation' => '导航管理',
     'notice' => '公告管理',
     'password' => '修改密码',
     'about' => '关于程序',
@@ -169,6 +170,7 @@ body.admin-dark .content-tab.active,body.admin-dark .download-tab.active,body.ad
       <a class="<?= nav_active('settings', $currentPage) ?>" data-tip="站点设置" href="/<?= htmlspecialchars($currentSlug, ENT_QUOTES, 'UTF-8') ?>/settings.php"><span class="nav-icon">⚙️</span><span class="nav-label">站点设置</span></a>
       <a class="<?= nav_active('downloads', $currentPage) ?>" data-tip="下载中心" href="/<?= htmlspecialchars($currentSlug, ENT_QUOTES, 'UTF-8') ?>/downloads.php"><span class="nav-icon">⬇️</span><span class="nav-label">下载中心</span></a>
       <a class="<?= nav_active('content', $currentPage) ?>" data-tip="页面内容" href="/<?= htmlspecialchars($currentSlug, ENT_QUOTES, 'UTF-8') ?>/content.php"><span class="nav-icon">📝</span><span class="nav-label">页面内容</span></a>
+      <a class="<?= nav_active('navigation', $currentPage) ?>" data-tip="导航管理" href="/<?= htmlspecialchars($currentSlug, ENT_QUOTES, 'UTF-8') ?>/navigation.php"><span class="nav-icon">🧭</span><span class="nav-label">导航管理</span></a>
       <a class="<?= nav_active('notice', $currentPage) ?>" data-tip="公告管理" href="/<?= htmlspecialchars($currentSlug, ENT_QUOTES, 'UTF-8') ?>/notice.php"><span class="nav-icon">📢</span><span class="nav-label">公告管理</span></a>
       <a class="<?= nav_active('about', $currentPage) ?>" data-tip="关于程序" href="/<?= htmlspecialchars($currentSlug, ENT_QUOTES, 'UTF-8') ?>/about.php"><span class="nav-icon">ℹ️</span><span class="nav-label">关于程序</span></a>
     </nav>

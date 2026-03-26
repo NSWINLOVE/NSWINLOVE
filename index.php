@@ -67,15 +67,7 @@ $releaseSummary = $releaseLines ? $releaseLines[0] : '当前暂无公开更新�
 $releaseStage = $availablePlatforms > 0 ? '公开发行版' : '发布准备中';
 $packageHint = '待补充';
 $checksumHint = '待提供';
-$defaultNavigation = [
-    ['label' => '导航一', 'anchor' => '#downloads', 'children' => []],
-    ['label' => '导航二', 'anchor' => '#release', 'children' => []],
-    ['label' => '导航三', 'anchor' => '', 'children' => [
-        ['label' => '子导航一', 'anchor' => '#guide'],
-        ['label' => '子导航二', 'anchor' => '#faq'],
-    ]],
-];
-$navigation = is_array($navigation) && $navigation ? $navigation : $defaultNavigation;
+$navigation = is_array($navigation) ? array_values(array_filter($navigation, static fn($item) => !empty(trim((string)($item['label'] ?? ''))))) : [];
 ?>
 <!doctype html>
 <html lang="zh-CN">
@@ -133,7 +125,7 @@ window.addEventListener('DOMContentLoaded',()=>{const key='site-theme';const bod
           </span>
         </a>
       </div>
-      <div class="nav-links">
+      <?php if ($navigation): ?><div class="nav-links">
         <?php foreach ($navigation as $navItem): $children = $navItem['children'] ?? []; $hasChildren = is_array($children) && $children; $anchor = (string)($navItem['anchor'] ?? ''); ?>
         <div class="nav-item-wrap<?= $hasChildren ? ' has-children' : '' ?>">
           <a class="nav-link" href="<?= h($anchor !== '' ? $anchor : 'javascript:void(0)') ?>">
@@ -149,7 +141,7 @@ window.addEventListener('DOMContentLoaded',()=>{const key='site-theme';const bod
           <?php endif; ?>
         </div>
         <?php endforeach; ?>
-      </div>
+      </div><?php endif; ?>
       <div class="nav-tools">
         <button id="mobileNavToggle" type="button" class="mobile-nav-toggle" aria-label="展开导航">☰</button>
         <button id="themeToggle" type="button" class="theme-toggle" aria-label="切换到黑夜模式">

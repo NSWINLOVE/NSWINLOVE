@@ -23,11 +23,8 @@ $currentPage = 'navigation';
 $message = '';
 $error = '';
 
-$defaultNavigation = [
-    ['label' => '', 'anchor' => '', 'children' => []],
-    ['label' => '', 'anchor' => '', 'children' => []],
-    ['label' => '', 'anchor' => '', 'children' => []],
-];
+$defaultNavigation = [];
+
 $navigation = $config['navigation'] ?? $defaultNavigation;
 
 function h(?string $value): string { return htmlspecialchars((string)$value, ENT_QUOTES, 'UTF-8'); }
@@ -86,9 +83,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 $navigation = array_values($navigation ?: $defaultNavigation);
-for ($i = count($navigation); $i < 6; $i++) {
-    $navigation[] = ['label' => '', 'anchor' => '', 'children' => []];
-}
 
 require __DIR__ . '/layout-top.php';
 ?>
@@ -106,12 +100,84 @@ require __DIR__ . '/layout-top.php';
     .sub-grid{display:grid;gap:10px;margin-top:12px}
     .sub-item{padding:12px;border-radius:14px;background:#fff;border:1px solid rgba(15,23,42,.06)}
     .muted-tip{margin-top:8px;color:#64748b;font-size:12px;line-height:1.7}
+    .nav-card-empty{display:none}
   </style>
+
+  <template id="navCardTemplate">
+    <div class="nav-card">
+      <div class="nav-card-head">
+        <div class="nav-card-title">一级导航 <span class="nav-card-index"></span></div>
+      </div>
+      <div class="field-grid-2">
+        <div>
+          <label class="field-label">导航名称</label>
+          <input class="input-ui" type="text" data-name-template="nav_label[{i}]" placeholder="如：下载中心">
+        </div>
+        <div>
+          <label class="field-label">一级链接 / 锚点</label>
+          <input class="input-ui" type="text" data-name-template="nav_anchor[{i}]" placeholder="如：#section / /about / https://example.com">
+        </div>
+      </div>
+      <div class="muted-tip">如果这个一级导航只作为下拉容器，可以把一级链接留空；有二级导航时前台会自动显示下拉菜单。</div>
+      <div class="sub-grid">
+        <div class="sub-item">
+          <div class="field-grid-2">
+            <div>
+              <label class="field-label">二级导航名称</label>
+              <input class="input-ui" type="text" data-name-template="child_label[{i}][0]" placeholder="如：安装教程">
+            </div>
+            <div>
+              <label class="field-label">二级链接 / 锚点</label>
+              <input class="input-ui" type="text" data-name-template="child_anchor[{i}][0]" placeholder="如：#guide / /docs / https://example.com">
+            </div>
+          </div>
+        </div>
+        <div class="sub-item">
+          <div class="field-grid-2">
+            <div>
+              <label class="field-label">二级导航名称</label>
+              <input class="input-ui" type="text" data-name-template="child_label[{i}][1]" placeholder="如：常见问题">
+            </div>
+            <div>
+              <label class="field-label">二级链接 / 锚点</label>
+              <input class="input-ui" type="text" data-name-template="child_anchor[{i}][1]" placeholder="如：#faq / /help / https://example.com">
+            </div>
+          </div>
+        </div>
+        <div class="sub-item">
+          <div class="field-grid-2">
+            <div>
+              <label class="field-label">二级导航名称</label>
+              <input class="input-ui" type="text" data-name-template="child_label[{i}][2]" placeholder="自定义">
+            </div>
+            <div>
+              <label class="field-label">二级链接 / 锚点</label>
+              <input class="input-ui" type="text" data-name-template="child_anchor[{i}][2]" placeholder="自定义">
+            </div>
+          </div>
+        </div>
+        <div class="sub-item">
+          <div class="field-grid-2">
+            <div>
+              <label class="field-label">二级导航名称</label>
+              <input class="input-ui" type="text" data-name-template="child_label[{i}][3]" placeholder="自定义">
+            </div>
+            <div>
+              <label class="field-label">二级链接 / 锚点</label>
+              <input class="input-ui" type="text" data-name-template="child_anchor[{i}][3]" placeholder="自定义">
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </template>
 
   <form method="post">
     <?= csrf_input() ?>
     <div class="nav-manager">
       <div class="field-help" style="margin:0;">导航跳转位置全部手动自定义。这里可填写锚点（如 <code>#section</code>）、站内路径（如 <code>/about</code>）或完整链接（如 <code>https://example.com</code>）。</div>
+      <?php if (!$navigation): ?><div class="field-help" style="margin:0;">当前还没有导航项，点击下方“新增一级导航”后再填写。</div><?php endif; ?>
+      <div id="navManagerList">
       <?php foreach ($navigation as $index => $item): ?>
       <div class="nav-card">
         <div class="nav-card-head">
@@ -146,8 +212,32 @@ require __DIR__ . '/layout-top.php';
         </div>
       </div>
       <?php endforeach; ?>
-      <div class="settings-actions"><button class="btn primary" type="submit">保存导航配置</button></div>
+      </div>
+      <div class="settings-actions" style="justify-content:space-between;gap:12px;flex-wrap:wrap;"><button class="btn secondary" type="button" id="addNavItem">新增一级导航</button><button class="btn primary" type="submit">保存导航配置</button></div>
     </div>
   </form>
 </div>
+<script>
+(function(){
+  const addBtn = document.getElementById('addNavItem');
+  const list = document.getElementById('navManagerList');
+  const tpl = document.getElementById('navCardTemplate');
+  if (!addBtn || !list || !tpl) return;
+  const refreshIndexes = () => {
+    list.querySelectorAll('.nav-card').forEach((card, idx) => {
+      const display = card.querySelector('.nav-card-index');
+      if (display) display.textContent = idx + 1;
+      card.querySelectorAll('[data-name-template]').forEach((input) => {
+        input.name = input.getAttribute('data-name-template').replaceAll('{i}', String(idx));
+      });
+    });
+  };
+  addBtn.addEventListener('click', () => {
+    const fragment = tpl.content.cloneNode(true);
+    list.appendChild(fragment);
+    refreshIndexes();
+  });
+  refreshIndexes();
+})();
+</script>
 <?php require __DIR__ . '/layout-bottom.php'; ?>

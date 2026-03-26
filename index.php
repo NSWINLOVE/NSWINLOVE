@@ -2,11 +2,12 @@
 require __DIR__ . '/system/admin-core/config_helper.php';
 $configFile = __DIR__ . '/config/install.php';
 $config = file_exists($configFile) ? require $configFile : [];
-$site = $config['site'] ?? [];
+$site = site_meta_load($configFile);
+$displaySettings = site_display_load($configFile);
 $downloads = site_downloads_load($configFile);
 $release = site_release_load($configFile);
 $content = site_content_load($configFile);
-$notice = $config['notice'] ?? [];
+$notice = site_notice_load($configFile);
 $installed = !empty($config['installed']);
 $navigation = site_navigation_load($configFile);
 
@@ -269,7 +270,7 @@ window.addEventListener('DOMContentLoaded',()=>{const key='site-theme';const bod
     <div class="faq-list"><?php if ($faqItems): foreach ($faqItems as $item): ?><div class="faq-item"><details><summary><?= h($item['q']) ?></summary><div class="faq-answer"><?= h($item['a']) ?></div></details></div><?php endforeach; else: ?><div class="faq-item"><details open><summary>暂无常见问题</summary><div class="faq-answer">后续可在后台继续补充。</div></details></div><?php endif; ?></div>
   </section>
 
-  <?php require __DIR__ . '/system/common-footer.php'; site_footer_render($site); ?>
+  <?php $site['footer_text'] = $displaySettings['footer_text'] ?? ($site['footer_text'] ?? ''); $site['footer_code'] = $displaySettings['footer_code'] ?? ($site['footer_code'] ?? ''); require __DIR__ . '/system/common-footer.php'; site_footer_render($site); ?>
 </div>
 <div id="toast" class="toast"></div>
 </body>

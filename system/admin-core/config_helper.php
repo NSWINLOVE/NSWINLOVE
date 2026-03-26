@@ -172,3 +172,57 @@ function site_content_load(string $configFile): array {
 function site_content_save(string $configFile, array $content): bool {
     return db_setting_set($configFile, 'site_content', json_encode($content, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
 }
+
+
+function site_notice_load(string $configFile): array {
+    $raw = db_setting_get($configFile, 'site_notice');
+    if (is_string($raw) && $raw !== '') {
+        $decoded = json_decode($raw, true);
+        if (is_array($decoded)) {
+            return array_merge(['enabled' => false, 'title' => '站点公告', 'content' => ''], $decoded);
+        }
+    }
+    $config = load_install_config($configFile);
+    return array_merge(['enabled' => false, 'title' => '站点公告', 'content' => ''], $config['notice'] ?? []);
+}
+
+function site_notice_save(string $configFile, array $notice): bool {
+    return db_setting_set($configFile, 'site_notice', json_encode($notice, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
+}
+
+function site_meta_load(string $configFile): array {
+    $defaults = ['title' => 'POP 官方下载', 'description' => '', 'keywords' => '', 'admin_slug' => 'admin', 'logo' => '', 'favicon' => ''];
+    $raw = db_setting_get($configFile, 'site_meta');
+    if (is_string($raw) && $raw !== '') {
+        $decoded = json_decode($raw, true);
+        if (is_array($decoded)) {
+            return array_merge($defaults, $decoded);
+        }
+    }
+    $config = load_install_config($configFile);
+    return array_merge($defaults, $config['site'] ?? []);
+}
+
+function site_meta_save(string $configFile, array $meta): bool {
+    return db_setting_set($configFile, 'site_meta', json_encode($meta, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
+}
+
+function site_display_load(string $configFile): array {
+    $defaults = ['footer_text' => '', 'footer_code' => ''];
+    $raw = db_setting_get($configFile, 'site_display');
+    if (is_string($raw) && $raw !== '') {
+        $decoded = json_decode($raw, true);
+        if (is_array($decoded)) {
+            return array_merge($defaults, $decoded);
+        }
+    }
+    $config = load_install_config($configFile);
+    return array_merge($defaults, [
+        'footer_text' => $config['site']['footer_text'] ?? '',
+        'footer_code' => $config['site']['footer_code'] ?? '',
+    ]);
+}
+
+function site_display_save(string $configFile, array $display): bool {
+    return db_setting_set($configFile, 'site_display', json_encode($display, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
+}

@@ -16,8 +16,8 @@ if (empty($_SESSION['admin_logged_in'])) {
 $baseDir = dirname(__DIR__, 2);
 $configFile = $baseDir . '/config/install.php';
 $config = load_install_config($configFile);
-$site = $config['site'] ?? [];
-$notice = $config['notice'] ?? [];
+$site = site_meta_load($configFile);
+$notice = site_notice_load($configFile);
 $currentSlug = trim($site['admin_slug'] ?? 'admin', '/');
 $currentSlug = $currentSlug !== '' ? $currentSlug : 'admin';
 $currentPage = 'notice';
@@ -33,15 +33,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         'title' => trim($_POST['title'] ?? '站点公告'),
         'content' => trim($_POST['content'] ?? ''),
     ];
-    $saved = save_install_config($configFile, function (array $current) use ($newNotice) {
-        $current['notice'] = $newNotice;
-        return $current;
-    });
+    $saved = site_notice_save($configFile, $newNotice);
     if (!$saved) {
         $error = '公告保存失败。';
     } else {
-        $config = load_install_config($configFile);
-        $notice = $config['notice'] ?? [];
+        $notice = site_notice_load($configFile);
         admin_log('update_notice', ['enabled' => !empty($notice['enabled'])]);
         $message = '公告已保存。';
     }

@@ -19,7 +19,8 @@ if (empty($_SESSION['admin_logged_in'])) {
 $baseDir = dirname(__DIR__, 2);
 $configFile = $baseDir . '/config/install.php';
 $config = load_install_config($configFile);
-$site = $config['site'] ?? [];
+$site = site_meta_load($configFile);
+$displaySettings = site_display_load($configFile);
 $db = $config['db'] ?? [];
 $currentSlug = trim($site['admin_slug'] ?? 'admin', '/');
 $currentSlug = $currentSlug !== '' ? $currentSlug : 'admin';
@@ -98,18 +99,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } else {
             $previousSlug = $currentSlug;
             $saved = save_install_config($configFile, function (array $current) use ($title, $description, $adminSlug, $keywords) {
-                $current['site'] = $current['site'] ?? [];
-                $current['site']['title'] = $title;
-                $current['site']['description'] = $description;
+$current['site'] = $current['site'] ?? [];
                 $current['site']['admin_slug'] = $adminSlug;
-                $current['site']['keywords'] = $keywords;
                 return $current;
             });
             if (!$saved) {
                 $error = '基础信息保存失败。';
             } else {
                 $config = load_install_config($configFile);
-                $site = $config['site'] ?? [];
+                $site = site_meta_load($configFile);
+$displaySettings = site_display_load($configFile);
                 $targetDir = $baseDir . '/' . $adminSlug;
                 if (!is_dir($targetDir)) {
                     mkdir($targetDir, 0777, true);
@@ -185,16 +184,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if ($uploadedLogo !== '') {
                 $logo = $uploadedLogo;
             }
-            $saved = save_install_config($configFile, function (array $current) use ($logo) {
-                $current['site'] = $current['site'] ?? [];
-                $current['site']['logo'] = $logo;
-                return $current;
-            });
+$meta = site_meta_load($configFile);
+            $meta['logo'] = $logo;
+            $saved = site_meta_save($configFile, $meta);
             if (!$saved) {
                 $error = 'Logo 保存失败。';
             } else {
                 $config = load_install_config($configFile);
-                $site = $config['site'] ?? [];
+                $site = site_meta_load($configFile);
+$displaySettings = site_display_load($configFile);
                 admin_log('update_site_logo', ['logo' => $logo]);
                 $message = 'Logo 设置已保存。';
             }
@@ -208,16 +206,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if ($uploadedFavicon !== '') {
                 $favicon = $uploadedFavicon;
             }
-            $saved = save_install_config($configFile, function (array $current) use ($favicon) {
-                $current['site'] = $current['site'] ?? [];
-                $current['site']['favicon'] = $favicon;
-                return $current;
-            });
+$meta = site_meta_load($configFile);
+            $meta['favicon'] = $favicon;
+            $saved = site_meta_save($configFile, $meta);
             if (!$saved) {
                 $error = 'Favicon 保存失败。';
             } else {
                 $config = load_install_config($configFile);
-                $site = $config['site'] ?? [];
+                $site = site_meta_load($configFile);
+$displaySettings = site_display_load($configFile);
                 admin_log('update_site_favicon', ['favicon' => $favicon]);
                 $message = 'Favicon 设置已保存。';
             }
@@ -225,33 +222,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $error = $e->getMessage();
         }
     } elseif ($section === 'display') {
-        $footerText = trim($_POST['footer_text'] ?? ($site['footer_text'] ?? ''));
-
-        $saved = save_install_config($configFile, function (array $current) use ($footerText) {
-            $current['site'] = $current['site'] ?? [];
-            $current['site']['footer_text'] = $footerText;
-            return $current;
-        });
+$footerText = trim($_POST['footer_text'] ?? ($displaySettings['footer_text'] ?? ''));
+        $displaySettings['footer_text'] = $footerText;
+        $saved = site_display_save($configFile, $displaySettings);
         if (!$saved) {
             $error = '显示设置保存失败。';
         } else {
             $config = load_install_config($configFile);
-            $site = $config['site'] ?? [];
+            $site = site_meta_load($configFile);
+$displaySettings = site_display_load($configFile);
             admin_log('update_site_display');
             $message = '显示设置已保存。';
         }
     } elseif ($section === 'footer') {
-        $footerCode = (string)($_POST['footer_code'] ?? '');
-        $saved = save_install_config($configFile, function (array $current) use ($footerCode) {
-            $current['site'] = $current['site'] ?? [];
-            $current['site']['footer_code'] = $footerCode;
-            return $current;
-        });
+$footerCode = (string)($_POST['footer_code'] ?? '');
+        $displaySettings = site_display_load($configFile);
+        $displaySettings['footer_code'] = $footerCode;
+        $saved = site_display_save($configFile, $displaySettings);
         if (!$saved) {
             $error = '公共底部保存失败。';
         } else {
             $config = load_install_config($configFile);
-            $site = $config['site'] ?? [];
+            $site = site_meta_load($configFile);
+$displaySettings = site_display_load($configFile);
             admin_log('update_footer_code', ['length' => strlen((string)($site['footer_code'] ?? ''))]);
             $message = '公共底部已保存。';
         }
@@ -442,7 +435,7 @@ require __DIR__ . '/layout-top.php';
       <div class="settings-editor" style="margin-bottom:18px;">
         <div class="field-help" style="margin:0 0 12px;">当前首页的下载中心、更新说明、安装教程、系统要求和常见问题都属于固定结构，不再通过这里的旧开关控制显示。这里保留站点底部展示文案设置。</div>
         <label class="field-label">底部文字</label>
-        <input class="input-ui" type="text" name="footer_text" value="<?= h($site['footer_text'] ?? '') ?>">
+        <input class="input-ui" type="text" name="footer_text" value="<?= h($displaySettings['footer_text'] ?? '') ?>">
         <div class="field-help">用于首页最底部的简短版权或补充说明文本。</div>
         <div class="settings-actions"><button class="btn primary" type="submit">保存显示设置</button></div>
       </div>
@@ -455,7 +448,7 @@ require __DIR__ . '/layout-top.php';
       <input type="hidden" name="section" value="footer">
       <div class="settings-editor" style="margin-bottom:18px;">
         <label class="field-label">公共底部代码</label>
-        <textarea class="textarea-ui" name="footer_code" style="min-height:220px;font-family:SFMono-Regular,Consolas,Monaco,monospace;"><?= h($site['footer_code'] ?? '') ?></textarea>
+        <textarea class="textarea-ui" name="footer_code" style="min-height:220px;font-family:SFMono-Regular,Consolas,Monaco,monospace;"><?= h($displaySettings['footer_code'] ?? '') ?></textarea>
         <div class="settings-actions"><button class="btn primary" type="submit">保存公共底部</button></div>
       </div>
     </form>
